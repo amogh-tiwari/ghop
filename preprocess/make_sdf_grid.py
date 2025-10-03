@@ -130,7 +130,7 @@ def get_sdf_grid(mesh_file, N=64, fit_to_unit_cube=False, **kwargs):
     if not mesh.is_watertight:
         print("mesh is not watertight")
         error_file = mesh_file.replace("/all/", "/bad/")
-        os.makedirs(error_file, exist_ok=True)
+        os.makedirs(os.path.dirname(error_file), exist_ok=True)
         print("non watertight mesh saved to", mesh_file)
 
     d, h, w = np.meshgrid(

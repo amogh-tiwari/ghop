@@ -1,8 +1,9 @@
 todo
-data/
-third_party/
-output/
-outputs/
+comparisons
+data
+third_party
+output
+outputs
 multirun/
 **/.ipynb_checkpoints/
 core
@@ -13,3 +14,4 @@ logs
 logs/
 **/__pycache__
 *.pyc
+*OAR*std*

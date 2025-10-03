@@ -1,0 +1,3 @@
+- Old readme at OLD_README.
+- Custom Data: First preprocess: `python -m preprocess.make_grasp`
+- 

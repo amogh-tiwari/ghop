@@ -287,7 +287,8 @@ def compute_contact_loss(
         tips[:, tip_idxs] = 1
         missed_mask = missed_mask & tips
     elif contact_zones == "zones":
-        mano_path = '/home/yufeiy2/scratch/pretrain/smpl/mano_v1_2/models'
+        # mano_path = '/home/yufeiy2/scratch/pretrain/smpl/mano_v1_2/models'
+        mano_path = '/home/atiwari/projects/ghop/third_party/mano_v1_2/models'
         with open(osp.join(mano_path, 'contact_zones.pkl'), 'rb') as fp:
             contact_zones = pickle.load(fp)['contact_zones']
 
