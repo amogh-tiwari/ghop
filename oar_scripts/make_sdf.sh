@@ -31,6 +31,5 @@ echo
 # -------------------- TO CHANGE --------------------- #
 export PYOPENGL_PLATFORM=egl
 echo Running Code ...
-python -m preprocess.make_grasp_grab2
-
+python -m preprocess.make_grasp_grab --start-idx 1 --end-idx 2
 # -------------------- TO CHANGE --------------------- #

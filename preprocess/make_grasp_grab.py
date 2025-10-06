@@ -4,6 +4,7 @@ import os
 import os.path as osp
 from preprocess.make_sdf_grid import get_sdf_grid
 from tqdm import tqdm
+import argparse
 
 import sys
 sys.path.append("../")
@@ -15,10 +16,14 @@ from object_manipulation.utils.rot_utils import transform_meshes
 #        uSdf.npz  // sdf grid
 #        obj.txt   // class name
 
-def grab(base_meshes, ndataset_dir, frames_fp, params_fp, dst_dir):
+def grab(base_meshes, dataset_dir, frames_fp, params_fp, dst_dir, all_frames_flag, start_idx, end_idx):
     frame_data = np.load(frames_fp)
     frame_names = frame_data['frame_names']
-    frame_idxs = frame_data['selected_idxs']
+    if all_frames_flag is False:
+        frame_idxs = frame_data['selected_idxs'][start_idx:end_idx]
+    else:
+        frame_idxs = list(range(start_idx, end_idx))
+    
     frame_params = np.load(params_fp)
 
     for f_name, f_idx in tqdm(zip(frame_names, frame_idxs), total=len(frame_names)):
@@ -64,11 +69,20 @@ def get_base_meshes(meshes_dir, tgt_mesh_names=None):
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--start-idx', type=int, required=True)
+    parser.add_argument('--end-idx', type=int, required=True)
+    args = parser.parse_args()
+
+    assert args.end_idx > args.start_idx, "end idx must be higher than start idx"
+    assert args.start_idx >= 0 and args.end_idx >= 0, "both idxs must be non-negative"
+
     dataset_dir = "/scratch/clear/atiwari/datasets/grabnet_extract/data"
-    frames_fp = "/scratch/clear/atiwari/datasets/grabnet_subset/data/test/frame_names_one_sample_per_sequence.npz"
+    # frames_fp = "/scratch/clear/atiwari/datasets/grabnet_subset/data/test/frame_names_one_sample_per_sequence.npz"
+    frames_fp = "/scratch/clear/atiwari/datasets/grabnet_extract/data/test/frame_names.npz"
     params_fp = "/scratch/clear/atiwari/datasets/grabnet_extract/data/test/grabnet_test.npz"
-    dst_dir = "/scratch/clear/atiwari/datasets/grabnet_processing/sdfs_v3/all"
+    dst_dir = f"/scratch/clear/atiwari/datasets/grabnet_processing/sdfs_{args.start_idx:06d}_to_{args.end_idx:06d}/all"
     base_meshes_dir = "/scratch/clear/atiwari/datasets/grabnet_extract/tools/object_meshes/contact_meshes/"
     base_meshes = get_base_meshes(base_meshes_dir, tgt_mesh_names=['binoculars', 'camera', 'fryingpan', 'mug', 'toothpaste', 'wineglass'])
 
-    grab(base_meshes, dataset_dir, frames_fp, params_fp, dst_dir)
+    grab(base_meshes, dataset_dir, frames_fp, params_fp, dst_dir, True, args.start_idx, args.end_idx) # The True is for all_frames_flag
