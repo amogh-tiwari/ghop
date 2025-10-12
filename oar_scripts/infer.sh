@@ -1,7 +1,9 @@
 #!/bin/bash
-#OAR -n atiwari
+#OAR -n ghop_array
 #OAR -l walltime=96:0:0
-#OAR -p host='gpuhost20'
+#OAR -t besteffort
+#OAR -t idempotent
+#OAR --array 10
 
 # -------------------- TO CHANGE --------------------- #
 ROOT_DIR="/home/atiwari/projects/ghop"
@@ -32,7 +34,15 @@ echo
 # -------------------- TO CHANGE --------------------- #
 echo Running Code ...
 # python  -m grasp_syn -m grasp_dir=\${environment.data_dir}/GRAB_grasp/meshes/all S=20 save_index=grasp_GRAB
-python -m grasp_syn -m grasp_dir=/scratch/clear/atiwari/datasets/grabnet_processing/sdfs/all save_index=grasp_GRAB_one_sample_per_sequence
+
+start_idx=$((OAR_ARRAY_INDEX * 18))
+end_idx=$((OAR_ARRAY_INDEX * 18 + 18))
+
+echo "Start Idx: $start_idx"
+echo "End Idx: $end_idx"
+
+
+python -m grasp_syn -m grasp_dir=/scratch/clear/atiwari/datasets/grabnet_processing/sdfs/all S=10 save_index=grasp_GRAB_one_sample_per_sequence_run3/${OAR_ARRAY_INDEX} start_idx=${start_idx} end_idx=${end_idx}
 
 # for item in binoculars camera fryingpan mug toothpaste wineglass; do
   # python -m grasp_syn -m grasp_dir=\${environment.data_dir}/GRAB_grasp/meshes/all S=20 save_index=grasp_GRAB/$item index=$item

@@ -1,3 +1,3 @@
 - Old readme at OLD_README.
 - Custom Data: First preprocess: `python -m preprocess.make_grasp`
-- 
+- Use "sds_grasp=True/False" and "refine_grasp=True/False" flags for running just sds_grasp or refinement.

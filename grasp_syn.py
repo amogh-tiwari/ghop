@@ -69,7 +69,9 @@ class UniGuide:
         text = self.text_template(text)
         batch["text"] = text
         max_t = 100
-        for t in tqdm(range(0, max_t), desc="eval grasp"):
+        print("Evaluating Grasps")
+        # for t in tqdm(range(0, max_t), desc="eval grasp"):
+        for t in range(0, max_t):
             loss_s = []
             for s in range(S):
                 loss, rtn = sd.apply_sd(
@@ -148,7 +150,9 @@ class UniGuide:
 
         self.vis_nSdf_hA(nSdf_gt, hA, self.hand_wrapper, save_pref + "_init")
 
-        for t in tqdm(range(T + 1)):
+        # for t in tqdm(range(T + 1)):
+        print("Optimizing using SDS")
+        for t in range(T + 1):
             optimizer.zero_grad()
 
             nTu_cur = geom_utils.rt_to_homo(
@@ -320,6 +324,20 @@ def list_all_inputs(args):
     else:
         query = args.index
     sdf_list = sorted(glob(osp.join(args.grasp_dir, query, "uSdf.npz")))
+
+    # Add slicing based on start_idx and end_idx
+    start = args.get('start_idx', None)
+    end = args.get('end_idx', None)
+    if start is not None or end is not None:
+        n_files = len(sdf_list)
+        if end > n_files:
+            print(f"!!! WARNING !!! specified end_idx ({end}) is greater than max number of files {n_files}. Setting end_idx to last idx ({n_files})")
+            end = n_files
+        assert end > start, "end_idx must be greater than start_idx"
+        assert end >=0 and start>=0, "both start_idx and end_idx must be non-negative"
+        assert start < n_files, "start must be less than max number of elements"
+        sdf_list = sdf_list[start:end]
+    
     return sdf_list
 
 
@@ -335,6 +353,7 @@ def batch_uniguide(args):
     sd = uni_guide.init_sds(args, device)
     sdf_list = list_all_inputs(args)
 
+    print("sds_grasp flag", args.get("sds_grasp"))
     for t, sdf_file in enumerate(tqdm(sdf_list)):
         if args.get("sds_grasp", False):
             index = sdf_file.split("/")[-2]
@@ -391,7 +410,7 @@ def batch_uniguide(args):
                 ],
             )
             web_utils.run(web_file, sorted_cell_list, width=256, inplace=True)
-
+    print("Refining Grasp")
     for t, sdf_file in enumerate(tqdm(sdf_list)):
         if args.get("refine_grasp", False):
             index = sdf_file.split("/")[-2]
