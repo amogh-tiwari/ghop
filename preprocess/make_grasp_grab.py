@@ -75,12 +75,15 @@ if __name__ == "__main__":
     assert args.end_idx > args.start_idx, "end idx must be higher than start idx"
     assert args.start_idx >= 0 and args.end_idx >= 0, "both idxs must be non-negative"
 
-    dataset_dir = "/scratch/clear/atiwari/datasets/grabnet_extract/data"
+    # SCRATCH = "/scratch/clear/atiwari"
+    SCRATCH = "/lustre/fsn1/projects/rech/tuy/ulc52bd/"
+    dataset_dir = f"{SCRATCH}/datasets/grabnet_extract/data"
     # frames_fp = "/scratch/clear/atiwari/datasets/grabnet_subset/data/test/frame_names_one_sample_per_sequence.npz"
-    frames_fp = "/scratch/clear/atiwari/datasets/grabnet_extract/data/test/frame_names.npz"
-    params_fp = "/scratch/clear/atiwari/datasets/grabnet_extract/data/test/grabnet_test.npz"
-    dst_dir = f"/scratch/clear/atiwari/datasets/grabnet_processing/sdfs_{args.start_idx:06d}_to_{args.end_idx:06d}/all"
-    base_meshes_dir = "/scratch/clear/atiwari/datasets/grabnet_extract/tools/object_meshes/contact_meshes/"
+    frames_fp = f"{SCRATCH}/datasets/grabnet_extract/data/test/frame_names.npz"
+    params_fp = f"{SCRATCH}/datasets/grabnet_extract/data/test/grabnet_test.npz"
+    dst_dir = f"{SCRATCH}/datasets/grabnet_processing/sdfs_{args.start_idx:06d}_to_{args.end_idx:06d}/all"
+    base_meshes_dir = f"{SCRATCH}/datasets/grabnet_extract/tools/object_meshes/contact_meshes/"
     base_meshes = get_base_meshes(base_meshes_dir, tgt_mesh_names=['binoculars', 'camera', 'fryingpan', 'mug', 'toothpaste', 'wineglass'])
+
 
     grab(base_meshes, dataset_dir, frames_fp, params_fp, dst_dir, True, args.start_idx, args.end_idx) # The True is for all_frames_flag
