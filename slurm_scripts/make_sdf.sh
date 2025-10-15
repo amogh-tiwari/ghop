@@ -21,6 +21,7 @@ conda activate ghop
 cd $HOME/projects/ghop
 
 set -x                                          # activate echo of launched commands
+export PYOPENGL_PLATFORM=egl
 srun python -m preprocess.make_grasp_grab --start-idx 1 --end-idx 2 # execute script
 
 
