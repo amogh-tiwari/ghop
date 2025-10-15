@@ -6,9 +6,7 @@ from preprocess.make_sdf_grid import get_sdf_grid
 from tqdm import tqdm
 import argparse
 
-import sys
-sys.path.append("../")
-from object_manipulation.utils.rot_utils import transform_meshes
+from utils.rot_utils import transform_meshes
 
 # folder/
 #    object_0/
