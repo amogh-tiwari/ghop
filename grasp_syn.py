@@ -323,18 +323,40 @@ def list_all_inputs(args):
         query = "*"
     else:
         query = args.index
+
     sdf_list = sorted(glob(osp.join(args.grasp_dir, query, "uSdf.npz")))
 
     # Add slicing based on start_idx and end_idx
     start = args.get('start_idx', None)
     end = args.get('end_idx', None)
-    if start is not None or end is not None:
-        n_files = len(sdf_list)
-        if end > n_files:
+    target_indices = args.get('target_indices', None)
+    
+    # Assert that both methods aren't used together
+    using_range = start is not None or end is not None
+    using_targets = target_indices is not None
+    assert not (using_range and using_targets), "Cannot specify both (start_idx/end_idx) and target_indices together"
+    
+    n_files = len(sdf_list)
+    if using_targets:
+        # Convert to list if it's a string or other format
+        if isinstance(target_indices, str):
+            target_indices = [int(x.strip()) for x in target_indices.split(',')]
+        
+        # Validate indices
+        for idx in target_indices:
+            assert idx >= 0 and idx < n_files, f"target_indices contains invalid index {idx}. Must be in range [0, {n_files})"
+        
+        # Select only the target files
+        sdf_list = [sdf_list[i] for i in target_indices]
+        print(f"Selected {len(sdf_list)} files based on target_indices: {target_indices}")
+    
+    elif using_range:
+        if end is not None and end > n_files:
             print(f"!!! WARNING !!! specified end_idx ({end}) is greater than max number of files {n_files}. Setting end_idx to last idx ({n_files})")
             end = n_files
+        
         assert end > start, "end_idx must be greater than start_idx"
-        assert end >=0 and start>=0, "both start_idx and end_idx must be non-negative"
+        assert end >= 0 and start >= 0, "both start_idx and end_idx must be non-negative"
         assert start < n_files, "start must be less than max number of elements"
         sdf_list = sdf_list[start:end]
     
@@ -411,6 +433,7 @@ def batch_uniguide(args):
             )
             web_utils.run(web_file, sorted_cell_list, width=256, inplace=True)
     print("Refining Grasp")
+    print("sdf list", sdf_list)
     for t, sdf_file in enumerate(tqdm(sdf_list)):
         if args.get("refine_grasp", False):
             index = sdf_file.split("/")[-2]
