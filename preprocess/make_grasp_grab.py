@@ -17,6 +17,12 @@ from utils.rot_utils import transform_meshes
 def grab(base_meshes, dataset_dir, frames_fp, params_fp, dst_dir, all_frames_flag, start_idx, end_idx):
     frame_data = np.load(frames_fp)
     frame_names = frame_data['frame_names']
+
+    n_frames = len(frame_names)
+    if end_idx > n_frames:
+        end_idx = n_frames
+        print("!!! WARNING !!! end_idx ({end_idx}) is higher than n_frames ({end_idx}). Clipping end_idx value to value of n_frames")
+
     if all_frames_flag is False:
         frame_idxs = frame_data['selected_idxs'][start_idx:end_idx]
     else:
