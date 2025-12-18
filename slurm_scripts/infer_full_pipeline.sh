@@ -25,7 +25,7 @@ set -x                                          # activate echo of launched comm
 
 echo "$SLURM_ARRAY_TASK_ID"
 
-out_dir=
+out_dir=grasps_GRAB_full_data_run_XXXX
 chunk_size=2
 start=$(( SLURM_ARRAY_TASK_ID * chunk_size ))
 end=$(( start + chunk_size ))
@@ -33,5 +33,5 @@ end=$(( start + chunk_size ))
 echo "Job $SLURM_ARRAY_TASK_ID: range [$start, $end]"
 
 export PYOPENGL_PLATFORM=egl
-srun python -m grasp_syn_on_grab start_idx=$start end_idx=$end S=10 save_index=grasps_GRAB_full_data
+srun python -m grasp_syn_on_grab start_idx=$start end_idx=$end S=10 save_index=$out_dir vis_every_n=-1
 

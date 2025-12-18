@@ -25,6 +25,7 @@ from models.sd import SDLoss
 from utils.obj2text import Obj2Text
 from utils.io_util import load_sdf_grid
 from utils.contact_util import compute_contact_loss
+import time
 
 device = "cuda:0"
 
@@ -148,7 +149,7 @@ class UniGuide:
         text = self.text_template(text)
         nXyz = mesh_utils.create_sdf_grid(1, uObj.shape[-1], 1.5, device=device)
 
-        self.vis_nSdf_hA(nSdf_gt, hA, self.hand_wrapper, save_pref + "_init")
+        # self.vis_nSdf_hA(nSdf_gt, hA, self.hand_wrapper, save_pref + "_init")
 
         # for t in tqdm(range(T + 1)):
         print("Optimizing using SDS")
@@ -179,7 +180,7 @@ class UniGuide:
             optimizer.step()
             scheduler.step()
 
-            if t % vis_every_n == 0:
+            if vis_every_n > 0 and t % vis_every_n == 0:
                 print(
                     f"[Global Step] {t:04d} [Loss] {loss.item():.4f} [SDS Loss] {sds_loss.item():.4f}"
                 )
@@ -193,9 +194,9 @@ class UniGuide:
         nSdf_pred, _ = mesh_utils.transform_sdf_grid(
             uObj, nTu_cur, N=64, lim=1.5 / 1.5, extra=False
         )
-        self.vis_nSdf_hA(
-            nSdf_pred, hA_pred, self.hand_wrapper, save_pref + f"_t{t:04d}_pred"
-        )
+        # self.vis_nSdf_hA(
+        #     nSdf_pred, hA_pred, self.hand_wrapper, save_pref + f"_t{t:04d}_pred"
+        # )
 
         nTu_cur = geom_utils.rt_to_homo(
             geom_utils.rotation_6d_to_matrix(nTu_rot), nTu_tsl, nTu_scale_gt
@@ -263,7 +264,7 @@ class UniGuide:
                     f'Step [{t:4d}] Loss: {loss.item():f} \t damp: {losses["damp"].item():f} miss: {losses["missed"].item():f}, penetr: {losses["penetr"].item():f}'
                 )
 
-            if t % vis_every_n == 0:
+            if vis_every_n > 0 and t % vis_every_n == 0:
                 # print loss
                 oHand.textures = mesh_utils.pad_texture(oHand, "blue")
                 oObj.textures = mesh_utils.pad_texture(oObj, "yellow")
@@ -373,9 +374,11 @@ def batch_uniguide(args):
     base_dir = args.save_dir  #  "/home/yufeiy2/scratch/result/uni_guide/"
 
     sd = uni_guide.init_sds(args, device)
+    print(f"Trainable params: {sum(p.numel() for p in sd.model.parameters() if p.requires_grad):,}, Total params: {sum(p.numel() for p in sd.model.parameters()):,}")
     sdf_list = list_all_inputs(args)
 
     print("sds_grasp flag", args.get("sds_grasp"))
+    start_time = time.time()
     for t, sdf_file in enumerate(tqdm(sdf_list)):
         if args.get("sds_grasp", False):
             index = sdf_file.split("/")[-2]
@@ -401,6 +404,7 @@ def batch_uniguide(args):
                     cfg=args,
                     T=args.T,
                     save_pref=save_pref,
+                    vis_every_n=args.vis_every_n
                 )
                 nTu = nTnp @ npTu
 
@@ -432,6 +436,11 @@ def batch_uniguide(args):
                 ],
             )
             web_utils.run(web_file, sorted_cell_list, width=256, inplace=True)
+    end_time = time.time()
+    print("SDS grasp time taken (s)", end_time - start_time)
+    
+    
+    start_time = time.time()
     print("Refining Grasp")
     print("sdf list", sdf_list)
     for t, sdf_file in enumerate(tqdm(sdf_list)):
@@ -460,9 +469,13 @@ def batch_uniguide(args):
                     save_pref=save_pref,
                     w_pen=w_pen,
                     w_miss=w_miss,
+                    vis_every_n=args.vis_every_n
                 )
 
                 uni_guide.save_grasp(nTu, hA, oTu, oObj_orig, data["loss"], save_pref)
+    end_time = time.time()
+    print("Refinement part, time taken:", end_time - start_time)
+
     return
 
 

@@ -151,7 +151,7 @@ def _main(args, custom_cfg):
 
         # get text
         # breakpoint()
-        text = seq_name.split("_")[2] # Get the object name --- The '2' is very seq / data specific.
+        text = seq_name.split("_")[2] # Get the object name --- The '[2]' is very seq / data specific.
         with open(osp.join(dst_dir, seq_name, "obj.txt"), "w") as f:
             f.write(text)
         # ---> At end of this block, you have sdf, transformation, text variables which shall be used later
@@ -169,7 +169,7 @@ def _main(args, custom_cfg):
 
             web_file = osp.join(base_dir, f"{index}_grasp.html")
             for s in range(args.S):
-                print("s")
+                print(f"s={s}")
                 bs = 1
                 save_pref = osp.join(base_dir,  f"{index}_s{s:02d}")
 
@@ -187,6 +187,7 @@ def _main(args, custom_cfg):
                     cfg=args,
                     T=args.T,
                     save_pref=save_pref,
+                    vis_every_n=args.vis_every_n
                 )
                 nTu = nTnp @ npTu
 
@@ -248,6 +249,7 @@ def _main(args, custom_cfg):
                     save_pref=save_pref,
                     w_pen=w_pen,
                     w_miss=w_miss,
+                    vis_every_n=args.vis_every_n
                 )
 
                 uni_guide.save_grasp(nTu, hA, oTu, oObj_orig, data["loss"], save_pref)
