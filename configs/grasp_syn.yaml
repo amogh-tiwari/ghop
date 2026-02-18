@@ -48,3 +48,4 @@ rand_tsl: 0.05
 
 start_idx: None
 end_idx: None
+vis_every_n: 500

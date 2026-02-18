@@ -260,8 +260,8 @@ def _main(args, custom_cfg):
 @slurm_utils.slurm_engine()
 def main(hydra_cfg):
     ##### ----- ACCOUNT SPECIFIC ----- #####
-    SCRATCH = "/scratch/clear/atiwari"
-    # SCRATCH = "/lustre/fsn1/projects/rech/tuy/ulc52bd/"
+    # SCRATCH = "/scratch/clear/atiwari"
+    SCRATCH = "/lustre/fsn1/projects/rech/tuy/ulc52bd/"
     dst_dir_base = f"{SCRATCH}/datasets/grabnet_processing_all_sdfs/"
     ##### ----- ACCOUNT SPECIFIC ----- #####
 
