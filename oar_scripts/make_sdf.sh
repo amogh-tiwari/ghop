@@ -1,7 +1,5 @@
 #!/bin/bash
 #OAR -n atiwari
-#OAR -E atiwari_%jobid%_%arrayid%.out
-#OAR -O atiwari_%jobid%_%arrayid%.out
 #OAR -l walltime=12:0:0
 #OAR -t besteffort
 #OAR -t idempotent
@@ -38,7 +36,7 @@ echo
 # -------------------- TO CHANGE --------------------- #
 echo "$OAR_ARRAY_INDEX"
 
-chunk_size=10
+chunk_size=100
 start=$(( (OAR_ARRAY_INDEX - 1) * chunk_size )) # OAR arrays are 1-indexed
 end=$(( start + chunk_size ))
 # -------------------- TO CHANGE --------------------- #
