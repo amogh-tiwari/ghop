@@ -287,7 +287,7 @@ class UniGuide:
         uSdf, uTo = load_sdf_grid(sdf_file, tensor=True, batched=True, device=device)
         text = open(sdf_file.replace("uSdf.npz", "obj.txt"), "r").read()
         oObj_orig = mesh_utils.load_mesh(
-            sdf_file.replace("uSdf.npz", "oObj.obj"), device=device
+            sdf_file.replace("uSdf.npz", "oObj.ply"), device=device
         )
         nTh = geom_utils.scale_matrix(torch.zeros([1, 3], device=device) + 5)
         oTu = geom_utils.inverse_rt(mat=uTo, return_mat=True)
@@ -385,10 +385,10 @@ def batch_uniguide(args):
             text, uSdf, nTu_fake, oTu, oObj_orig = uni_guide.read_one_grasp(sdf_file)
             cell_list = []
 
-            web_file = osp.join(base_dir, f"{index}_grasp.html")
+            web_file = osp.join(base_dir, f"{index}/grasp.html")
             for s in range(args.S):
                 bs = 1
-                save_pref = osp.join(base_dir,  f"{index}_s{s:02d}")
+                save_pref = osp.join(base_dir,  f"{index}/s{s:02d}")
 
                 _, _, nTu_scale = geom_utils.homo_to_rt(nTu_fake)
                 rot = geom_utils.random_rotations(bs, device=device)
@@ -450,13 +450,13 @@ def batch_uniguide(args):
 
             index = sdf_file.split("/")[-2]
             grasp_list = sorted(
-                glob(osp.join(base_dir, f"{index}_*_para.pkl"))
+                glob(osp.join(base_dir, f"{index}/*_para.pkl"))
             )
             for s, grasp_file in enumerate(grasp_list):
                 basename = osp.basename(grasp_file).split("_para.pkl")[0]
                 w_miss = args.loss.w_miss
                 w_pen = args.loss.w_pen
-                save_pref = osp.join(base_dir, "refine", basename)
+                save_pref = osp.join(base_dir, index, "refine", basename)
                 data = pickle.load(open(grasp_file, "rb"))
                 nTu = torch.FloatTensor(data["nTu"]).to(device)[None]
                 hA = torch.FloatTensor(data["hA"]).to(device)[None]
